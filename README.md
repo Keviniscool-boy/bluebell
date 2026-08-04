@@ -100,7 +100,7 @@ Bluebell 是一个前后端分离的社区论坛项目，最初作为 Go Web 开
 
 停止服务：`docker compose down`（仅在确定要清空数据时使用 `docker compose down -v`）。
 
-### 方式二：本地开发（想改代码用这个）
+### 方式二：本地开发
 
 需要：Go 1.25+、MySQL 8、Redis 7、Node.js。
 
