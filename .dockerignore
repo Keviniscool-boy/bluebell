@@ -1,0 +1,17 @@
+.git
+.gitignore
+.env
+.env.*
+settings/config.yaml
+
+bluebell
+bluebell.exe
+*.log
+coverage.*
+
+.claude
+.vscode
+.idea
+
+frontend/node_modules
+frontend/dist

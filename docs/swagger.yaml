@@ -1,0 +1,407 @@
+basePath: /api/v1
+definitions:
+  controller.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  controller.ResCode:
+    enum:
+    - 1000
+    - 1001
+    - 1002
+    - 1003
+    - 1004
+    - 1005
+    - 1006
+    - 1007
+    - 1008
+    - 1009
+    - 1010
+    - 1011
+    - 1012
+    format: int64
+    type: integer
+    x-enum-varnames:
+    - CodeSuccess
+    - CodeInvalidParams
+    - CodeUserExist
+    - CodeUserNotExist
+    - CodeInvalidCredentials
+    - CodePasswordMismatch
+    - CodeServerBusy
+    - CodePostNotExist
+    - CodeCommunityNotExist
+    - CodeInvalidAuth
+    - CodeNeedLogin
+    - CodeVoteTimeExpire
+    - CodeRepeatedVote
+  controller.Response:
+    properties:
+      code:
+        $ref: '#/definitions/controller.ResCode'
+      data: {}
+      msg: {}
+    type: object
+  models.ApiPostDetail:
+    properties:
+      author_id:
+        example: "0"
+        type: string
+      author_name:
+        type: string
+      community_id:
+        example: "0"
+        type: string
+      content:
+        type: string
+      create_time:
+        type: string
+      id:
+        example: "0"
+        type: string
+      introduction:
+        type: string
+      name:
+        type: string
+      status:
+        type: integer
+      title:
+        type: string
+    required:
+    - community_id
+    - content
+    - title
+    type: object
+  models.Community:
+    properties:
+      id:
+        example: "0"
+        type: string
+      name:
+        type: string
+    type: object
+  models.CommunityDetail:
+    properties:
+      create_time:
+        type: string
+      id:
+        example: "0"
+        type: string
+      introduction:
+        type: string
+      name:
+        type: string
+    type: object
+  models.ParamLogin:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.ParamSignUp:
+    properties:
+      password:
+        type: string
+      re_password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - re_password
+    - username
+    type: object
+  models.Post:
+    properties:
+      author_id:
+        example: "0"
+        type: string
+      community_id:
+        example: "0"
+        type: string
+      content:
+        type: string
+      create_time:
+        type: string
+      id:
+        example: "0"
+        type: string
+      status:
+        type: integer
+      title:
+        type: string
+    required:
+    - community_id
+    - content
+    - title
+    type: object
+  models.VoteData:
+    properties:
+      direction:
+        description: 投票方向 1赞成 0取消 -1反对（不能加 required，0 是合法值）
+        enum:
+        - 1
+        - 0
+        - -1
+        example: "0"
+        type: string
+      post_id:
+        description: 帖子id（雪花id字符串）
+        example: "0"
+        type: string
+    required:
+    - post_id
+    type: object
+host: localhost:8081
+info:
+  contact:
+    email: raotao29@gmail.com
+    name: bluebell
+    url: https://github.com/Keviniscool-boy?tab=repositories
+  description: 基于 Gin + MySQL + Redis 的社区 Web 应用，提供用户、社区、帖子、投票等接口
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: bluebell 项目接口文档
+  version: "1.0"
+paths:
+  /community:
+    get:
+      description: 查询所有社区（id、name）列表
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Community'
+                  type: array
+              type: object
+      summary: 社区列表
+      tags:
+      - 社区相关接口
+  /community/{id}:
+    get:
+      description: 根据社区 ID 查询社区详细信息
+      parameters:
+      - description: 社区 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.CommunityDetail'
+              type: object
+      summary: 社区详情
+      tags:
+      - 社区相关接口
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录接口，登录成功后返回 JWT Token
+      parameters:
+      - description: 登录参数
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/controller.LoginResponse'
+              type: object
+      summary: 用户登录
+      tags:
+      - 用户相关接口
+  /post:
+    post:
+      consumes:
+      - application/json
+      description: 创建新帖子，需登录后携带 Token
+      parameters:
+      - description: 帖子参数
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.Post'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 创建帖子
+      tags:
+      - 帖子相关接口
+  /post/{id}:
+    get:
+      description: 根据帖子 ID 查询帖子详情（含作者名、社区信息）
+      parameters:
+      - description: 帖子 ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.ApiPostDetail'
+              type: object
+      summary: 帖子详情
+      tags:
+      - 帖子相关接口
+  /posts/:
+    get:
+      description: 分页查询帖子列表
+      parameters:
+      - description: 页码（从 1 开始，默认 1）
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量（默认 10）
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ApiPostDetail'
+                  type: array
+              type: object
+      summary: 帖子列表
+      tags:
+      - 帖子相关接口
+  /posts2/:
+    get:
+      description: 按时间或热度排序分页查询帖子列表
+      parameters:
+      - description: 排序方式：time 按时间（默认）| score 按热度
+        in: query
+        name: order
+        type: string
+      - description: 页码（从 1 开始，默认 1）
+        in: query
+        name: page
+        type: integer
+      - description: 每页数量（默认 10）
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.ApiPostDetail'
+                  type: array
+              type: object
+      summary: 帖子列表（排序）
+      tags:
+      - 帖子相关接口
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: 用户注册接口，创建新账号
+      parameters:
+      - description: 注册参数
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamSignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+      summary: 用户注册
+      tags:
+      - 用户相关接口
+  /vote:
+    post:
+      consumes:
+      - application/json
+      description: 对帖子进行投票，direction 取值：1 赞成 | 0 取消 | -1 反对，需登录后携带 Token
+      parameters:
+      - description: 投票参数
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/models.VoteData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: 帖子投票
+      tags:
+      - 投票相关接口
+securityDefinitions:
+  ApiKeyAuth:
+    description: 请求头中携带 Bearer Token，例如：Bearer &lt;token&gt;
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

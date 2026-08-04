@@ -1,0 +1,30 @@
+# Local secrets and configuration
+.env
+.env.*
+!.env.example
+/config.yaml
+/settings/config.yaml
+
+# Go build output
+bluebell
+bluebell.exe
+*.test
+*.out
+coverage.*
+
+# Logs
+*.log
+logs/
+
+# Frontend dependencies and build output
+frontend/node_modules/
+frontend/dist/
+
+# Editors and local tools
+.vscode/
+.idea/
+.claude/
+
+# Operating system
+.DS_Store
+Thumbs.db

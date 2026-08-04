@@ -1,0 +1,41 @@
+services:
+  mysql8019:
+    image: "mysql:8.0.19"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}"
+      MYSQL_DATABASE: "bluebell"
+      MYSQL_USER: "bluebell"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}"
+    restart: unless-stopped
+    ports:
+      - "33061:3306"
+    volumes:
+      - ./models/create_table.sql:/docker-entrypoint-initdb.d/create_table.sql
+
+  redis507:
+    image: "redis:7"
+    restart: unless-stopped
+    ports:
+      - "26379:6379"
+
+  bluebell_app:
+    build: .
+    restart: unless-stopped
+    environment:
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:?set MYSQL_PASSWORD in .env}"
+      JWT_SECRET: "${JWT_SECRET:?set JWT_SECRET in .env}"
+    command: ./wait-for.sh mysql8019:3306 redis507:6379 -- ./bluebell_app
+    depends_on:
+      - mysql8019
+      - redis507
+    ports:
+      - "8888:8081"
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - bluebell_app
+    ports:
+      - "8080:80"
