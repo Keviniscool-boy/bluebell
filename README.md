@@ -54,22 +54,41 @@ Bluebell 是一个前后端分离的社区论坛项目，最初作为 Go Web 开
 
 ## 快速开始
 
-### 方式一：Docker Compose（推荐）
+### 方式一：Docker Compose（推荐，想快速体验用这个）
 
 前置要求：Docker Desktop（含 Docker Compose）、Git。
 
-```powershell
-# 1. 创建本地环境变量文件
-Copy-Item .env.example .env
+1. 创建本地环境变量文件：
 
-# 2. 修改 .env，为 MySQL 和 JWT 设置随机且安全的值
+   ```powershell
+   Copy-Item .env.example .env
+   ```
 
-# 3. 构建并启动全部服务
-docker compose up --build -d
+2. 编辑 `.env`，填入 3 个随机值（这些是密码，**不要**提交到仓库）：
 
-# 4. 查看服务状态
-docker compose ps
-```
+   ```text
+   MYSQL_ROOT_PASSWORD=一段随机字符串
+   MYSQL_PASSWORD=另一段随机字符串
+   JWT_SECRET=至少 32 位的随机字符串
+   ```
+
+   可以用在线密码生成器，或在 PowerShell 里生成：
+
+   ```powershell
+   -join ((48..57)+(65..90)+(97..122) | Get-Random -Count 32 | ForEach-Object { [char]$_ })
+   ```
+
+3. 构建并启动全部服务（MySQL 首次启动会自动执行 `models/create_table.sql` 建表并写入示例社区）：
+
+   ```powershell
+   docker compose up --build -d
+   ```
+
+4. 查看服务状态：
+
+   ```powershell
+   docker compose ps
+   ```
 
 启动后访问：
 
@@ -81,21 +100,39 @@ docker compose ps
 
 停止服务：`docker compose down`（仅在确定要清空数据时使用 `docker compose down -v`）。
 
-### 方式二：本地开发
+### 方式二：本地开发（想改代码用这个）
 
-后端需要先准备本地 MySQL、Redis，并将 `settings/config.example.yaml` 复制为 `settings/config.yaml` 后填写配置：
+需要：Go 1.25+、MySQL 8、Redis 7、Node.js。
 
-```powershell
-go run .
-```
+1. **准备数据库**
+   - 启动本地 MySQL，创建一个名为 `bluebell` 的数据库
+   - 导入表结构与示例社区数据：
 
-前端开发服务器：
+     ```powershell
+     mysql -uroot -p bluebell -e "source models/create_table.sql"
+     ```
 
-```powershell
-Set-Location frontend
-npm ci
-npm run serve
-```
+   - 启动本地 Redis（默认端口 6379 即可）
+
+2. **填写配置**
+   - 复制 `settings/config.example.yaml` 为 `settings/config.yaml`
+   - 填入你的 MySQL 连接信息，以及一个至少 32 位的 `jwt.secret`
+
+3. **启动后端**（默认监听 8081 端口）：
+
+   ```powershell
+   go run .
+   ```
+
+4. **启动前端**（开发服务器会把 `/api/v1` 请求代理到本地后端）：
+
+   ```powershell
+   Set-Location frontend
+   npm ci
+   npm run serve
+   ```
+
+   > 💡 如果前端页面请求报网络错误，先检查 `frontend/vue.config.js` 里代理的 `target` 端口是否与后端实际端口一致。
 
 ## API 接口一览
 
