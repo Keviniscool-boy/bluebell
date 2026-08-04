@@ -7,7 +7,7 @@
 [![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Go Version](https://img.shields.io/badge/Go-1.25-00ADD8.svg)](go.mod)
 [![Vue Version](https://img.shields.io/badge/Vue-2.6-4FC08D.svg)](frontend/package.json)
-[![CI](https://github.com/Keviniscool-boy/bluebell/actions/workflows/ci.yml/badge.svg)](https://github.com/Keviniscool-boy/bluebell/actions/workflows/ci.yml)
+[![CI](https://github.com/Keviniscool-boy/go-community-forum/actions/workflows/ci.yml/badge.svg)](https://github.com/Keviniscool-boy/go-community-forum/actions/workflows/ci.yml)
 
 
 </div>
